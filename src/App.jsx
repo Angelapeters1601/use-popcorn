@@ -9,6 +9,8 @@ import WatchedMoviesList from "./WatchedMoviesList";
 import WatchedSummary from "./WatchedSummary";
 import Loader from "./Loader";
 import ErrorMessage from "./ErrorMessage";
+import MovieDetails from "./MovieDetails";
+import StarRating from "./StarRating";
 
 const tempMovieData = [
   {
@@ -57,19 +59,31 @@ const tempWatchedData = [
   },
 ];
 
-const KEY = "1c42d0ee";
+// const KEY = process.env.VITE_OMDB_API_KEY;
+const KEY = import.meta.env.VITE_OMDB_API_KEY;
 
 function App() {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const tempQuery = "Peaky blinders";
+  const [query, setQuery] = useState("");
+  const [selectedId, setSelectedId] = useState(null);
+
+  //   for selecting movies
+  const handleSelectMovie = (id) => {
+    setSelectedId((selectedId) => (id === selectedId ? null : id));
+  };
+
+  const handleCloseMovie = () => {
+    setSelectedId(null);
+  };
 
   useEffect(() => {
     const fetchMovies = async () => {
       try {
         setIsLoading(true);
+        setError("");
         const res = await fetch(
           `https://www.omdbapi.com/?apikey=${KEY}&s=${query}`
         );
@@ -83,39 +97,48 @@ function App() {
         }
         setMovies(data.Search);
         // console.log(data.Search);
-        console.log(data.Error);
       } catch (err) {
-        console.error(err.message);
+        // console.error(err.message);
         setError(err.message);
       } finally {
         setIsLoading(false);
       }
+      if (query.length < 2) {
+        setMovies([]);
+        setError("");
+        return;
+      }
     };
+
     fetchMovies();
-  }, []);
+  }, [query]);
 
   return (
     <>
       <NavBar>
-        <Search />
+        <Search query={query} setQuery={setQuery} />
         <NumResults movies={movies} />
       </NavBar>
       <MainApp>
         <Box>
-          {/* {isLoading ? (
-            <Loader />
-          ) : error ? (
-            <ErrorMessage message={error} />
-          ) : (
-            <MovieList movies={movies} />
-          )} */}
           {isLoading && <Loader />}
-          {!isLoading && !error && <MovieList movies={movies} />}
+          {!isLoading && !error && (
+            <MovieList movies={movies} onSelectMovie={handleSelectMovie} />
+          )}
           {error && <ErrorMessage message={error} />}
         </Box>
         <Box>
-          <WatchedSummary watched={watched} />
-          <WatchedMoviesList watched={watched} />
+          {selectedId ? (
+            <MovieDetails
+              selectedId={selectedId}
+              onCloseMovie={handleCloseMovie}
+            />
+          ) : (
+            <>
+              <WatchedSummary watched={watched} />
+              <WatchedMoviesList watched={watched} />
+            </>
+          )}
         </Box>
       </MainApp>
     </>
@@ -123,4 +146,3 @@ function App() {
 }
 
 export default App;
-// https://www.omdbapi.com/?i=tt3896198&apikey=1c42d0ee
