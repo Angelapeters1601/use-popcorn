@@ -4,9 +4,10 @@ import Loader from "./Loader";
 
 const KEY = import.meta.env.VITE_OMDB_API_KEY;
 
-function MovieDetails({ selectedId, onCloseMovie }) {
+function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
   const [movie, setMovie] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [userRating, setUserRating] = useState("");
 
   //   destructuring data:
   const {
@@ -22,6 +23,26 @@ function MovieDetails({ selectedId, onCloseMovie }) {
     Genre: genre,
   } = movie;
 
+  const handleAdd = () => {
+    const newWatchedMovie = {
+      imdbID: selectedId,
+      title,
+      year,
+      poster,
+      imdbRating: Number(imdbRating),
+      runtime: Number(runtime.split(" ").at(0)),
+      userRating,
+    };
+    onAddWatched(newWatchedMovie);
+    onCloseMovie();
+  };
+
+  //   const isWatched = watched.map((movie) => movie.imdbID).includes(selectedId);
+  const isWatched = watched.some((movie) => movie.imdbID === selectedId);
+  const watchedUserRating = watched.find(
+    (movie) => movie.imdbID === selectedId
+  )?.userRating;
+
   useEffect(() => {
     const getMovieDetails = async () => {
       setIsLoading(true);
@@ -29,7 +50,7 @@ function MovieDetails({ selectedId, onCloseMovie }) {
         `https://www.omdbapi.com/?apikey=${KEY}&i=${selectedId}`
       );
       const data = await res.json();
-      console.log(data);
+      //   console.log(data);
       setMovie(data);
       setIsLoading(false);
     };
@@ -60,7 +81,25 @@ function MovieDetails({ selectedId, onCloseMovie }) {
           </header>
           <section>
             <div className="rating">
-              <StarRating />
+              {!isWatched ? (
+                <>
+                  <StarRating
+                    maxRating={10}
+                    size={22.5}
+                    onSetRating={setUserRating}
+                  />
+
+                  {userRating > 0 && (
+                    <button className="btn-add" onClick={handleAdd}>
+                      + Add to list
+                    </button>
+                  )}
+                </>
+              ) : (
+                <h3>
+                  You rated this movie {watchedUserRating} <span>⭐ </span>
+                </h3>
+              )}
             </div>
             <p>
               <em>{plot}</em>

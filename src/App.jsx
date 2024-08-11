@@ -10,7 +10,6 @@ import WatchedSummary from "./WatchedSummary";
 import Loader from "./Loader";
 import ErrorMessage from "./ErrorMessage";
 import MovieDetails from "./MovieDetails";
-import StarRating from "./StarRating";
 
 const tempMovieData = [
   {
@@ -59,7 +58,6 @@ const tempWatchedData = [
   },
 ];
 
-// const KEY = process.env.VITE_OMDB_API_KEY;
 const KEY = import.meta.env.VITE_OMDB_API_KEY;
 
 function App() {
@@ -77,6 +75,14 @@ function App() {
 
   const handleCloseMovie = () => {
     setSelectedId(null);
+  };
+
+  const handleAddWatched = (movie) => {
+    setWatched((watched) => [...watched, movie]);
+  };
+
+  const handleDeleteWatched = (id) => {
+    setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   };
 
   useEffect(() => {
@@ -132,11 +138,16 @@ function App() {
             <MovieDetails
               selectedId={selectedId}
               onCloseMovie={handleCloseMovie}
+              onAddWatched={handleAddWatched}
+              watched={watched}
             />
           ) : (
             <>
               <WatchedSummary watched={watched} />
-              <WatchedMoviesList watched={watched} />
+              <WatchedMoviesList
+                watched={watched}
+                onDeleteWatched={handleDeleteWatched}
+              />
             </>
           )}
         </Box>
