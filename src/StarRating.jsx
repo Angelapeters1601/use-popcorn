@@ -14,7 +14,7 @@ const starContainerStyle = {
 
 // specifying proptypes -(isRequired can be chained to ensure validation):
 // There are also PropTypes.bool and .object
-StarRating.PropTypes = {
+StarRating.propTypes = {
   maxRating: PropTypes.number,
   defaultRating: PropTypes.number,
   size: PropTypes.number,

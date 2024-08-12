@@ -86,6 +86,12 @@ function App() {
   };
 
   useEffect(() => {
+    // only fetch movies if query is 2 or more letters long
+    if (query.length < 2) {
+      setMovies([]);
+      setError("");
+      return;
+    }
     // abort controller
     const controller = new AbortController();
 
@@ -105,24 +111,19 @@ function App() {
         if (data.Response === "False") {
           throw new Error("Movie not found");
         }
+
         setMovies(data.Search);
         setError("");
-        // console.log(data.Search);
       } catch (err) {
-        console.error(err.message);
+        // console.error(err.message);
         if (err.name !== "AbortError") {
           setError(err.message);
         }
       } finally {
         setIsLoading(false);
       }
-      if (query.length < 2) {
-        setMovies([]);
-        setError("");
-        return;
-      }
     };
-
+    handleCloseMovie(); // closes movie if a new one is fetching
     fetchMovies();
     // clean up function:
     return () => {
