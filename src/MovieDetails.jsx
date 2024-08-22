@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import StarRating from "./StarRating";
 import Loader from "./Loader";
 
@@ -23,6 +23,19 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
     Genre: genre,
   } = movie;
 
+  //   const isWatched = watched.map((movie) => movie.imdbID).includes(selectedId);
+  const isWatched = watched.some((movie) => movie.imdbID === selectedId);
+  const watchedUserRating = watched.find(
+    (movie) => movie.imdbID === selectedId
+  )?.userRating;
+
+  //   ref for checking no of ratings
+  const countRef = useRef(0);
+
+  useEffect(() => {
+    if (userRating) countRef.current = countRef.current++;
+  }, [userRating]);
+
   const handleAdd = () => {
     const newWatchedMovie = {
       imdbID: selectedId,
@@ -32,6 +45,7 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
       imdbRating: Number(imdbRating),
       runtime: Number(runtime.split(" ").at(0)),
       userRating,
+      countRatingDecisions: countRef.current,
     };
     onAddWatched(newWatchedMovie);
     onCloseMovie();
@@ -52,12 +66,6 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
       document.removeEventListener("keydown", callback); //clean up
     };
   }, [onCloseMovie]);
-
-  //   const isWatched = watched.map((movie) => movie.imdbID).includes(selectedId);
-  const isWatched = watched.some((movie) => movie.imdbID === selectedId);
-  const watchedUserRating = watched.find(
-    (movie) => movie.imdbID === selectedId
-  )?.userRating;
 
   useEffect(() => {
     const getMovieDetails = async () => {
