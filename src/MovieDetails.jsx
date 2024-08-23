@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import StarRating from "./StarRating";
 import Loader from "./Loader";
+import useKey from "./useKey";
 
 const KEY = import.meta.env.VITE_OMDB_API_KEY;
 
@@ -52,20 +53,22 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
   };
 
   //   handling keypress event
-  useEffect(() => {
-    const callback = (e) => {
-      if (e.code === "Escape") {
-        onCloseMovie();
-        console.log("CLOSING");
-      }
-    };
+  useKey("Escape", onCloseMovie);
 
-    document.addEventListener("keydown", callback);
+  //   useEffect(() => {
+  //     const callback = (e) => {
+  //       if (e.code === "Escape") {
+  //         onCloseMovie();
+  //         console.log("CLOSING");
+  //       }
+  //     };
 
-    return () => {
-      document.removeEventListener("keydown", callback); //clean up
-    };
-  }, [onCloseMovie]);
+  //     document.addEventListener("keydown", callback);
+
+  //     return () => {
+  //       document.removeEventListener("keydown", callback); //clean up
+  //     };
+  //   }, [onCloseMovie]);
 
   useEffect(() => {
     const getMovieDetails = async () => {
